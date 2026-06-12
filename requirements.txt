@@ -1,0 +1,7 @@
+numpy
+pandas
+tqdm
+scikit-learn
+subword-nmt
+
+python train.py --task bindingdb --epochs 50 --lr 1e-4 --batch-size 32
