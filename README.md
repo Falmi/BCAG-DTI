@@ -1,16 +1,125 @@
 # BCAG-DTI: Bidirectional Cross-Attention and Global Semantic Aggregation for Robust Drug–Target Interaction Prediction
 
-Drug target interaction (DTI) prediction is a foundational task for in-silico drug discovery, which is costly and time-consuming due to the need of experimental search over large drug compound space. Recent years have witnessed promising progress for deep learning in DTI predictions. However, the following challenges are still open: (1) existing molecular representation learning approaches ignore the sub-structural nature of DTI, thus produce results that are less accurate and difficult to explain; (2) existing methods focus on limited labeled data while ignoring the value of massive unlabelled molecular data. We propose a Molecular Interaction Transformer (MolTrans) to address these limitations via: (1) knowledge inspired sub-structural pattern mining algorithm and interaction modeling module for more accurate and interpretable DTI prediction; (2) an augmented transformer encoder to better extract and capture the semantic relations among substructures extracted from massive unlabeled biomedical data. We evaluate MolTrans on real world data and show it improved DTI prediction performance compared to state-of-the-art baselines.
+## Overview
 
+BCAG-DTI is a Transformer-based framework for drug–target interaction (DTI) prediction. Building upon the MolTrans architecture, BCAG-DTI introduces three key enhancements:
+
+* **Bidirectional Cross-Attention** for explicit modelling of interactions between drug substructures and protein residues.
+* **Hybrid Local–Global Representation Learning** that combines CNN-based interaction modelling with multi-scale global semantic aggregation.
+* **Enhanced Training and Classification Strategy** using a residual-enhanced MLP classifier, BCEWithLogitsLoss, AdamW optimisation, and cosine learning-rate scheduling.
+
+The proposed framework aims to improve predictive performance, training stability, and interpretability for DTI prediction, particularly in small-data and imbalanced settings.
+
+---
 
 ## Datasets
 
-In the dataset folder, we provide all three processed datasets used in MolTrans: BindingDB, DAVIS, and BIOSNAP. In BIOSNAP folder, there is full dataset for the main experiment, and also missing data experiment (70%, 80%, 90%, 95%) and unseen drug and unseen protein datasets.
+This repository contains the processed benchmark datasets used in our experiments:
 
-## Run
+* BindingDB
+* BIOSNAP
+* DAVIS
 
-We provide an example jupyter notebook in the repository. Although it runs for 100 epochs, we find 50 epochs is way enough and all the results in paper are run by 50 epochs. 
+For BIOSNAP, we additionally provide:
 
-You can also directly run `python train.py --task ${task_name}` to run the experiments. `${task_name}` could either be `biosnap`,`bindingdb` , and `davis`. For the BindingDB and DAVIS, please refer this [Page](https://zitniklab.hms.harvard.edu/TDC/multi_pred_tasks/dti/) for more details.
+* Unseen Drug split
+* Unseen Protein split
+* Missing-data settings (70%, 80%, 90%, and 95%)
 
-Will add more codes and tests in the next couple of weeks. But this should be enough to try on MolTrans.
+Please refer to the original dataset publications for dataset descriptions and licensing information.
+
+---
+
+## Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Training
+
+Example training configuration:
+
+| Parameter           | Value |
+| ------------------- | ----- |
+| Embedding Dimension | 128   |
+| Transformer Layers  | 2     |
+| Attention Heads     | 8     |
+| Batch Size          | 16    |
+| Optimiser           | AdamW |
+| Learning Rate       | 1e-4  |
+| Epochs              | 60    |
+
+Run training using:
+
+```bash
+python train.py
+```
+
+---
+
+## Evaluation
+
+Evaluate a trained model using:
+
+```bash
+python evaluate.py
+```
+
+---
+
+## Repository Structure
+
+```text
+BCAG-DTI/
+├── datasets/
+│   ├── BindingDB/
+│   ├── BIOSNAP/
+│   └── DAVIS/
+├── models/
+├── scripts/
+├── notebooks/
+├── train.py
+├── evaluate.py
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## Experimental Results
+
+The proposed BCAG-DTI framework was evaluated on three widely used DTI benchmark datasets:
+
+* BindingDB
+* BIOSNAP
+* DAVIS
+
+The model consistently improves prediction performance over the MolTrans baseline through explicit cross-modal interaction modelling and hybrid local–global representation learning.
+
+---
+
+## Citation
+
+If you use this repository in your research, please cite:
+
+```bibtex
+@article{pang2026bcagdti,
+  title={Bidirectional Cross-Attention and Global Semantic Aggregation for Robust Drug--Target Interaction Prediction},
+  author={Pang, Hao},
+  journal={BMC Bioinformatics},
+  year={2026},
+  note={Under Review}
+}
+```
+
+---
+
+## Contact
+
+**Hao Pang**
+University of Nottingham Ningbo China
+
+For questions regarding the code or manuscript, please contact the corresponding author.
