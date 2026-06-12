@@ -108,7 +108,7 @@ If you use this repository in your research, please cite:
 ```bibtex
 @article{pang2026bcagdti,
   title={Bidirectional Cross-Attention and Global Semantic Aggregation for Robust Drug--Target Interaction Prediction},
-  author={Pang, Hao},
+  author={Hao Panga, Fiseha Berhanu Tesemaa, Tianxiang Cuia and Yuan Chenga},
   journal={BMC Bioinformatics},
   year={2026},
   note={Under Review}
@@ -116,10 +116,3 @@ If you use this repository in your research, please cite:
 ```
 
 ---
-
-## Contact
-
-**Hao Pang**
-University of Nottingham Ningbo China
-
-For questions regarding the code or manuscript, please contact the corresponding author.
