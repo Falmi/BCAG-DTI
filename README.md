@@ -78,11 +78,9 @@ BCAG-DTI/
 │   ├── BindingDB/
 │   ├── BIOSNAP/
 │   └── DAVIS/
-├── models/
-├── scripts/
-├── notebooks/
 ├── train.py
 ├── evaluate.py
+├── evaluate_davis.py
 ├── requirements.txt
 └── README.md
 ```
