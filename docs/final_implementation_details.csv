@@ -1,0 +1,20 @@
+Parameter / component,Final value or setting,Scope / clarification
+Embedding dimension,384,All final MolTrans and BCAG-DTI variants
+Self-attention heads,12,Drug and protein Transformer encoders
+Transformer intermediate dimension,1536,All final variants
+Cross-attention,"Bidirectional, 8 heads",A3/A6/A7/A8; each direction uses residual addition and LayerNorm inside the cross-attention block
+Global pooling,"Average pooling + max pooling only",A4/A6/A7/A8; applied separately to drug and protein then concatenated
+Pairwise interaction map,Dot-product interaction map,"torch.bmm(drug_encoded, protein_encoded.transpose(1,2))"
+Enhanced classifier,"Linear + LayerNorm + GELU + dropout; no classifier residual connections",A5/A8; hidden sizes 1024/512/256
+DAVIS label smoothing,0.1,Only variants using the new training strategy (A2/A7/A8); original-strategy variants use 0
+Optimiser,AdamW,A2/A7/A8; A1/A3/A4/A5/A6 use Adam
+Learning rate,"1.0e-4 for non-DAVIS; 1.2e-4 for DAVIS",New training strategy; original strategy uses 1.0e-4
+Weight decay,"1.0e-5 for non-DAVIS; 5.0e-6 for DAVIS",A2/A7/A8; original strategy uses no weight decay
+Scheduler,Linear warm-up followed by cosine decay,A2/A7/A8 only
+Warm-up epochs,"3 for non-DAVIS; 5 for DAVIS",A2/A7/A8 only
+Gradient clipping,Maximum norm 1.0,A2/A7/A8 only
+AMP,Enabled,A2/A7/A8 only
+Early stopping,"Validation AUROC; patience 15 non-DAVIS / 25 DAVIS",A2/A7/A8 only
+Total epochs,"Maximum 50 non-DAVIS / 60 DAVIS",New strategy; original-strategy variants run fixed 50 epochs
+Batch size,16,Global batch size in final command/configuration
+Checkpoint-selection metric,Validation AUROC,Test classification threshold is selected on validation data and reused on test
