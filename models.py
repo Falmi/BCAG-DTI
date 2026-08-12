@@ -13,32 +13,9 @@ torch.manual_seed(1)
 np.random.seed(1)
 
 
-class CrossAttentionInteraction(nn.Module):
-    """Cross-attention between drug and protein representations"""
-    def __init__(self, hidden_size, num_heads=8, dropout=0.1):
-        super(CrossAttentionInteraction, self).__init__()
-        self.cross_attn_d2p = nn.MultiheadAttention(hidden_size, num_heads, dropout=dropout, batch_first=True)
-        self.cross_attn_p2d = nn.MultiheadAttention(hidden_size, num_heads, dropout=dropout, batch_first=True)
-        self.ln_d = LayerNorm(hidden_size)
-        self.ln_p = LayerNorm(hidden_size)
-        
-    def forward(self, d_encoded, p_encoded, d_mask=None, p_mask=None):
-        # Drug attends to Protein
-        d2p_attn, _ = self.cross_attn_d2p(d_encoded, p_encoded, p_encoded, key_padding_mask=p_mask)
-        d_enhanced = self.ln_d(d_encoded + d2p_attn)
-        
-        # Protein attends to Drug
-        p2d_attn, _ = self.cross_attn_p2d(p_encoded, d_encoded, d_encoded, key_padding_mask=d_mask)
-        p_enhanced = self.ln_p(p_encoded + p2d_attn)
-        
-        return d_enhanced, p_enhanced
-
-
-class BIN_Interaction_Flat(nn.Module):
+class BIN_Interaction_Flat(nn.Sequential):
     '''
         Interaction Network with 2D interaction map
-        Enhanced with Cross-Attention and Multi-scale Pooling
-        With adaptive features for different datasets
     '''
     
     def __init__(self, **config):
@@ -47,7 +24,6 @@ class BIN_Interaction_Flat(nn.Module):
         self.max_p = config['max_protein_seq']
         self.emb_size = config['emb_size']
         self.dropout_rate = config['dropout_rate']
-        self.use_moe = config.get('use_moe', False)  # Mixture of Experts for dataset adaptation
         
         #densenet
         self.scale_down_ratio = config['scale_down_ratio']
@@ -55,10 +31,8 @@ class BIN_Interaction_Flat(nn.Module):
         self.transition_rate = config['transition_rate']
         self.num_dense_blocks = config['num_dense_blocks']
         self.kernal_dense_size = config['kernal_dense_size']
-        self.batch_size = config['batch_size']
         self.input_dim_drug = config['input_dim_drug']
         self.input_dim_target = config['input_dim_target']
-        self.gpus = torch.cuda.device_count()
         self.n_layer = 2
         #encoder
         self.hidden_size = config['emb_size']
@@ -76,81 +50,26 @@ class BIN_Interaction_Flat(nn.Module):
         self.d_encoder = Encoder_MultipleLayers(self.n_layer, self.hidden_size, self.intermediate_size, self.num_attention_heads, self.attention_probs_dropout_prob, self.hidden_dropout_prob)
         self.p_encoder = Encoder_MultipleLayers(self.n_layer, self.hidden_size, self.intermediate_size, self.num_attention_heads, self.attention_probs_dropout_prob, self.hidden_dropout_prob)
         
-        # Cross-attention interaction module
-        self.cross_attention = CrossAttentionInteraction(self.hidden_size, num_heads=8, dropout=self.dropout_rate)
-        
         self.icnn = nn.Conv2d(1, 3, 3, padding = 0)
         
-        # Multi-scale global pooling
-        self.global_pool_avg = nn.AdaptiveAvgPool1d(1)
-        self.global_pool_max = nn.AdaptiveMaxPool1d(1)
-        
-        # Attention-based pooling for more flexible feature extraction
-        self.attention_pool_d = nn.Sequential(
-            nn.Linear(self.emb_size, 1),
-            nn.Softmax(dim=1)
+        self.decoder = nn.Sequential(
+            nn.Linear(self.flatten_dim, 512),
+            nn.ReLU(True),
+            
+            nn.BatchNorm1d(512),
+            nn.Linear(512, 64),
+            nn.ReLU(True),
+            
+            nn.BatchNorm1d(64),
+            nn.Linear(64, 32),
+            nn.ReLU(True),
+            
+            #output layer
+            nn.Linear(32, 1)
         )
-        self.attention_pool_p = nn.Sequential(
-            nn.Linear(self.emb_size, 1),
-            nn.Softmax(dim=1)
-        )
-        
-        # Enhanced classifier head: 3-layer MLP with LayerNorm + GELU
-        # Input: flat features + (avg+max+attention) pooling for drug and protein
-        head_in = self.flatten_dim + 6 * self.emb_size  # flat + 3*(avg+max+attn)
-        head_hidden1 = 1024
-        head_hidden2 = 512
-        head_hidden3 = 256
-        
-        # Add residual connection for better gradient flow
-        self.decoder_layer1 = nn.Sequential(
-            nn.Linear(head_in, head_hidden1),
-            nn.LayerNorm(head_hidden1),
-            nn.GELU(),
-            nn.Dropout(self.dropout_rate)
-        )
-        
-        self.decoder_layer2 = nn.Sequential(
-            nn.Linear(head_hidden1, head_hidden2),
-            nn.LayerNorm(head_hidden2),
-            nn.GELU(),
-            nn.Dropout(self.dropout_rate)
-        )
-        
-        self.decoder_layer3 = nn.Sequential(
-            nn.Linear(head_hidden2, head_hidden3),
-            nn.LayerNorm(head_hidden3),
-            nn.GELU(),
-            nn.Dropout(self.dropout_rate * 0.5)
-        )
-        
-        self.decoder_output = nn.Linear(head_hidden3, 1)
-        
-        # Shortcut connections for deeper network
-        self.shortcut1 = nn.Linear(head_in, head_hidden2) if head_in != head_hidden2 else None
-        self.shortcut2 = nn.Linear(head_hidden2, head_hidden3) if head_hidden2 != head_hidden3 else None
-        
-        # Weight initialization
-        self._init_weights()
-        
-    def _init_weights(self):
-        """Initialize weights with Xavier uniform"""
-        for m in [self.decoder_layer1, self.decoder_layer2, self.decoder_layer3, self.decoder_output]:
-            for layer in m.modules() if hasattr(m, 'modules') else [m]:
-                if isinstance(layer, nn.Linear):
-                    nn.init.xavier_uniform_(layer.weight)
-                    if layer.bias is not None:
-                        nn.init.zeros_(layer.bias)
-        
-        # Initialize shortcuts
-        if self.shortcut1 is not None:
-            nn.init.xavier_uniform_(self.shortcut1.weight)
-            nn.init.zeros_(self.shortcut1.bias)
-        if self.shortcut2 is not None:
-            nn.init.xavier_uniform_(self.shortcut2.weight)
-            nn.init.zeros_(self.shortcut2.bias)
         
     def forward(self, d, p, d_mask, p_mask):
+        batch_size = d.size(0)
         
         ex_d_mask = d_mask.unsqueeze(1).unsqueeze(2)
         ex_p_mask = p_mask.unsqueeze(1).unsqueeze(2)
@@ -161,60 +80,42 @@ class BIN_Interaction_Flat(nn.Module):
         d_emb = self.demb(d) # batch_size x seq_length x embed_size
         p_emb = self.pemb(p)
 
-        # Encode with transformer
+        # set output_all_encoded_layers be false, to obtain the last layer hidden states only...
+        
         d_encoded_layers = self.d_encoder(d_emb.float(), ex_d_mask.float())
+        #print(d_encoded_layers.shape)
         p_encoded_layers = self.p_encoder(p_emb.float(), ex_p_mask.float())
-        
-        # Cross-attention interaction (key innovation)
-        d_enhanced, p_enhanced = self.cross_attention(d_encoded_layers, p_encoded_layers)
+        #print(p_encoded_layers.shape)
 
-        # Get actual batch size dynamically
-        actual_batch_size = d.size(0)
-        
-        # 2D Interaction map (original method, now with enhanced features)
-        d_aug = torch.unsqueeze(d_enhanced, 2).repeat(1, 1, self.max_p, 1)
-        p_aug = torch.unsqueeze(p_enhanced, 1).repeat(1, self.max_d, 1, 1)
+        # repeat to have the same tensor size for aggregation   
+        d_aug = torch.unsqueeze(d_encoded_layers, 2).repeat(1, 1, self.max_p, 1) # repeat along protein size
+        p_aug = torch.unsqueeze(p_encoded_layers, 1).repeat(1, self.max_d, 1, 1) # repeat along drug size
         
         i = d_aug * p_aug # interaction
-        i_v = i.view(actual_batch_size, -1, self.max_d, self.max_p)
+        i_v = i.reshape(batch_size, -1, self.max_d, self.max_p)
+        # batch_size x embed size x max_drug_seq_len x max_protein_seq_len
         i_v = torch.sum(i_v, dim = 1)
+        #print(i_v.shape)
         i_v = torch.unsqueeze(i_v, 1)
+        #print(i_v.shape)
         
-        i_v = F.dropout(i_v, p = self.dropout_rate, training=self.training)        
+        i_v = F.dropout(i_v, p=self.dropout_rate, training=self.training)
         
+        #f = self.icnn2(self.icnn1(i_v))
         f = self.icnn(i_v)
-        f = f.view(actual_batch_size, -1)
         
-        # Multi-scale global pooling (new feature)
-        d_avg = self.global_pool_avg(d_enhanced.permute(0, 2, 1)).squeeze(-1)  # (batch, emb_size)
-        d_max = self.global_pool_max(d_enhanced.permute(0, 2, 1)).squeeze(-1)
-        p_avg = self.global_pool_avg(p_enhanced.permute(0, 2, 1)).squeeze(-1)
-        p_max = self.global_pool_max(p_enhanced.permute(0, 2, 1)).squeeze(-1)
+        #print(f.shape)
         
-        # Attention-based pooling (adaptive to different patterns)
-        d_attn_weights = self.attention_pool_d(d_enhanced)  # (batch, seq_len, 1)
-        d_attn = torch.sum(d_enhanced * d_attn_weights, dim=1)  # (batch, emb_size)
+        #f = self.dense_net(f)
+        #print(f.shape)
         
-        p_attn_weights = self.attention_pool_p(p_enhanced)
-        p_attn = torch.sum(p_enhanced * p_attn_weights, dim=1)
+        f = f.reshape(batch_size, -1)
+        #print(f.shape)
         
-        # Concatenate all features
-        combined = torch.cat([f, d_avg, d_max, d_attn, p_avg, p_max, p_attn], dim=1)
+        #f_encode = torch.cat((d_encoded_layers[:,-1], p_encoded_layers[:,-1]), dim = 1)
         
-        # Enhanced classifier with residual connections (outputs raw logits)
-        x1 = self.decoder_layer1(combined)
-        x2 = self.decoder_layer2(x1)
-        
-        # Add residual connection
-        if self.shortcut1 is not None:
-            x2 = x2 + self.shortcut1(combined)
-        
-        x3 = self.decoder_layer3(x2)
-        
-        if self.shortcut2 is not None:
-            x3 = x3 + self.shortcut2(x2)
-        
-        score = self.decoder_output(x3)
+        #score = self.decoder(torch.cat((f, f_encode), dim = 1))
+        score = self.decoder(f)
         return score    
    
 # help classes    
