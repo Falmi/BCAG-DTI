@@ -1,0 +1,9 @@
+Variant,Final mapping,New training strategy,Cross-attention,Global pooling,Enhanced classifier,Status
+A1,Original MolTrans,No,No,No,No,Final; no rerun planned
+A2,Original MolTrans + new training strategy only,Yes,No,No,No,Final; no rerun planned
+A3,Cross-attention only,No,Yes,No,No,Final; no rerun planned
+A4,Multi-scale/global pooling only,No,No,Yes,No,Final; no rerun planned
+A5,Enhanced classifier only,No,No,No,Yes,Final; no rerun planned
+A6,Cross-attention + global pooling with original training strategy,No,Yes,Yes,No,Final; no rerun planned
+A7,Cross-attention + global pooling with new training strategy,Yes,Yes,Yes,No,Final; no rerun planned
+A8,Full BCAG-DTI,Yes,Yes,Yes,Yes,Final; no rerun planned
