@@ -1,0 +1,10 @@
+Experiment,Train rows,Validation rows,Test rows,Source path,Protocol
+BindingDB,12668,6644,13289,dataset/BindingDB,Fixed upstream MolTrans CSV files
+BIOSNAP full,19238,2748,5497,dataset/BIOSNAP/full_data,Fixed upstream MolTrans CSV files
+DAVIS,2086,3006,6011,dataset/DAVIS,Fixed upstream MolTrans CSV files
+BIOSNAP unseen drug,19154,2736,5593,dataset/BIOSNAP/unseen_drug,Fixed robustness split supplied by upstream MolTrans repository
+BIOSNAP unseen protein,19375,2768,5340,dataset/BIOSNAP/unseen_protein,Fixed robustness split supplied by upstream MolTrans repository
+BIOSNAP missing 70%,8245,1924,17314,dataset/BIOSNAP/missing_data/70,Fixed robustness split supplied by upstream MolTrans repository
+BIOSNAP missing 80%,5511,2204,19840,dataset/BIOSNAP/missing_data/80,Fixed robustness split supplied by upstream MolTrans repository
+BIOSNAP missing 90%,2748,2474,22261,dataset/BIOSNAP/missing_data/90,Fixed robustness split supplied by upstream MolTrans repository
+BIOSNAP missing 95%,1378,2618,23559,dataset/BIOSNAP/missing_data/95,Fixed robustness split supplied by upstream MolTrans repository
