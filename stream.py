@@ -3,24 +3,26 @@ import pandas as pd
 import torch
 from torch.utils import data
 import json
+from pathlib import Path
 
 from sklearn.preprocessing import OneHotEncoder
 
 from subword_nmt.apply_bpe import BPE
 import codecs
 
-vocab_path = './ESPF/protein_codes_uniprot.txt'
-bpe_codes_protein = codecs.open(vocab_path)
-pbpe = BPE(bpe_codes_protein, merges=-1, separator='')
-sub_csv = pd.read_csv('./ESPF/subword_units_map_uniprot.csv')
+base_path = Path(__file__).resolve().parent
+vocab_path = base_path / 'ESPF' / 'protein_codes_uniprot.txt'
+with codecs.open(str(vocab_path)) as bpe_codes_protein:
+    pbpe = BPE(bpe_codes_protein, merges=-1, separator='')
+sub_csv = pd.read_csv(base_path / 'ESPF' / 'subword_units_map_uniprot.csv')
 
 idx2word_p = sub_csv['index'].values
 words2idx_p = dict(zip(idx2word_p, range(0, len(idx2word_p))))
 
-vocab_path = './ESPF/drug_codes_chembl.txt'
-bpe_codes_drug = codecs.open(vocab_path)
-dbpe = BPE(bpe_codes_drug, merges=-1, separator='')
-sub_csv = pd.read_csv('./ESPF/subword_units_map_chembl.csv')
+vocab_path = base_path / 'ESPF' / 'drug_codes_chembl.txt'
+with codecs.open(str(vocab_path)) as bpe_codes_drug:
+    dbpe = BPE(bpe_codes_drug, merges=-1, separator='')
+sub_csv = pd.read_csv(base_path / 'ESPF' / 'subword_units_map_chembl.csv')
 
 idx2word_d = sub_csv['index'].values
 words2idx_d = dict(zip(idx2word_d, range(0, len(idx2word_d))))
@@ -36,7 +38,6 @@ def protein2emb_encoder(x):
         i1 = np.asarray([words2idx_p[i] for i in t1])  # index
     except:
         i1 = np.array([0])
-        #print(x)
 
     l = len(i1)
    
@@ -51,13 +52,11 @@ def protein2emb_encoder(x):
 
 def drug2emb_encoder(x):
     max_d = 50
-    #max_d = 100
     t1 = dbpe.process_line(x).split()  # split
     try:
         i1 = np.asarray([words2idx_d[i] for i in t1])  # index
     except:
         i1 = np.array([0])
-        #print(x)
     
     l = len(i1)
 
@@ -86,20 +85,10 @@ class BIN_Data_Encoder(data.Dataset):
 
     def __getitem__(self, index):
         'Generates one sample of data'
-        # Select sample
-        # Load data and get label
         index = self.list_IDs[index]
-        #d = self.df.iloc[index]['DrugBank ID']
         d = self.df.iloc[index]['SMILES']
         p = self.df.iloc[index]['Target Sequence']
-        
-        #d_v = drug2single_vector(d)
         d_v, input_mask_d = drug2emb_encoder(d)
         p_v, input_mask_p = protein2emb_encoder(p)
-        
-        #print(d_v.shape)
-        #print(input_mask_d.shape)
-        #print(p_v.shape)
-        #print(input_mask_p.shape)
         y = self.labels[index]
         return d_v, p_v, input_mask_d, input_mask_p, y
