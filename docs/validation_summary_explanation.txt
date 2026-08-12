@@ -1,0 +1,7 @@
+Validation-summary explanation
+
+best_validation is the full validation-metric dictionary evaluated at the epoch where the monitored checkpoint-selection metric achieved its best value. The field 'monitor' records the selection metric (AUROC in the available completed runs), and best_metric is the corresponding monitored value.
+
+Epoch-history rows are recorded during training and may use per-epoch thresholds or may precede the final checkpoint reload. Therefore, a best_validation value can differ slightly from a value seen in history.csv. The reported test metrics in each summary.json were generated after reloading the best_checkpoint.pt named by the 'checkpoint' field, not necessarily the final training epoch.
+
+Use individual_runs.csv to map every reported test result to suite, model configuration, dataset, seed, best epoch, monitor, and checkpoint path. selected_checkpoints.csv identifies the six weights included in this compact package.

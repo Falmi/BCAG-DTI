@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "task": "biosnap_full",
+  "split": "test",
+  "seed": 3,
+  "comparison_case_id": "tp_01_db04652_p28845",
+  "cases": [
+    {
+      "case_id": "tp_01_db04652_p28845",
+      "category": "TP",
+      "sample_index": 848,
+      "drug_id": "DB04652",
+      "drug_name": "corticosterone",
+      "protein_id": "P28845",
+      "protein_name": "HSD11B1",
+      "label": 1,
+      "expected_a8_prediction": 1,
+      "expected_a8_probability": 0.999996208,
+      "expected_a1_prediction": 1,
+      "expected_a1_probability": 0.859793753,
+      "known_residues": [170, 183, 187],
+      "evidence": [
+        {
+          "source_type": "database",
+          "source_name": "DrugBank DB04652",
+          "url": "https://go.drugbank.com/drugs/DB04652",
+          "evidence_level": "identity",
+          "note": "Drug identity reference for corticosterone."
+        },
+        {
+          "source_type": "database",
+          "source_name": "UniProt P28845",
+          "url": "https://www.uniprot.org/uniprotkb/P28845/entry",
+          "evidence_level": "target_function",
+          "note": "Human HSD11B1 identity, function, and residue annotation reference."
+        },
+        {
+          "source_type": "structure",
+          "source_name": "RCSB PDB 1Y5R",
+          "url": "https://www.rcsb.org/structure/1Y5R",
+          "evidence_level": "ortholog_ligand_structure",
+          "note": "Mouse 11beta-HSD1 structure with corticosterone; ortholog context, not the exact human sequence."
+        },
+        {
+          "source_type": "structure",
+          "source_name": "RCSB PDB 3H6K",
+          "url": "https://www.rcsb.org/structure/3H6K",
+          "evidence_level": "human_target_structure",
+          "note": "Human HSD11B1 structural context; the deposited ligand is not corticosterone."
+        }
+      ]
+    },
+    {
+      "case_id": "tp_02_db04924_p14416",
+      "category": "TP",
+      "sample_index": 1371,
+      "drug_id": "DB04924",
+      "drug_name": "itopride",
+      "protein_id": "P14416",
+      "protein_name": "DRD2",
+      "label": 1,
+      "expected_a8_prediction": 1,
+      "expected_a8_probability": 0.999996365,
+      "known_residues": [114, 193, 386, 390, 393],
+      "evidence": [
+        {
+          "source_type": "database",
+          "source_name": "DrugBank DB04924",
+          "url": "https://go.drugbank.com/drugs/DB04924",
+          "evidence_level": "identity",
+          "note": "Drug identity and pharmacology reference for itopride."
+        },
+        {
+          "source_type": "pharmacology",
+          "source_name": "Itopride dopamine D2 antagonism study",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/1831229/",
+          "evidence_level": "functional_target_evidence",
+          "note": "Pharmacological evidence for dopamine D2 receptor antagonism; not a co-crystal structure."
+        },
+        {
+          "source_type": "structure",
+          "source_name": "RCSB PDB 6CM4",
+          "url": "https://www.rcsb.org/structure/6CM4",
+          "evidence_level": "target_pocket_structure",
+          "note": "Human DRD2 pocket structure with risperidone; structural context only, not itopride."
+        },
+        {
+          "source_type": "database",
+          "source_name": "RCSB P14416 structure group",
+          "url": "https://www.rcsb.org/groups/summary/polymer_entity/P14416",
+          "evidence_level": "target_structure_index",
+          "note": "Index of structures mapped to human DRD2."
+        }
+      ]
+    },
+    {
+      "case_id": "tn_01_db00050_p49888",
+      "category": "TN",
+      "sample_index": 670,
+      "drug_id": "DB00050",
+      "drug_name": "cetrorelix",
+      "protein_id": "P49888",
+      "protein_name": "SULT1E1",
+      "label": 0,
+      "expected_a8_prediction": 0,
+      "expected_a8_probability": 0.000049494,
+      "known_residues": [],
+      "evidence": [
+        {
+          "source_type": "database",
+          "source_name": "DrugBank DB00050",
+          "url": "https://go.drugbank.com/drugs/DB00050",
+          "evidence_level": "identity",
+          "note": "Drug identity reference for cetrorelix."
+        },
+        {
+          "source_type": "database",
+          "source_name": "UniProt P49888",
+          "url": "https://www.uniprot.org/uniprotkb/P49888/entry",
+          "evidence_level": "identity",
+          "note": "Protein identity reference for human SULT1E1; no pair-level validation is claimed."
+        }
+      ]
+    },
+    {
+      "case_id": "fp_01_db01075_p41145",
+      "category": "FP",
+      "sample_index": 5457,
+      "drug_id": "DB01075",
+      "drug_name": "diphenhydramine",
+      "protein_id": "P41145",
+      "protein_name": "OPRK1",
+      "label": 0,
+      "expected_a8_prediction": 1,
+      "expected_a8_probability": 0.999995679,
+      "known_residues": [],
+      "evidence": [
+        {
+          "source_type": "database",
+          "source_name": "DrugBank DB01075",
+          "url": "https://go.drugbank.com/drugs/DB01075",
+          "evidence_level": "identity",
+          "note": "Drug identity and known pharmacology reference for diphenhydramine."
+        },
+        {
+          "source_type": "database",
+          "source_name": "UniProt P41145",
+          "url": "https://www.uniprot.org/uniprotkb/P41145/entry",
+          "evidence_level": "identity",
+          "note": "Protein identity reference for human kappa opioid receptor."
+        },
+        {
+          "source_type": "evidence_review",
+          "source_name": "Curated direct-evidence review",
+          "url": "",
+          "evidence_level": "no_reliable_direct_evidence_identified",
+          "note": "No reliable direct diphenhydramine-OPRK1 binding evidence was identified; absence of evidence is not proof of non-binding."
+        }
+      ]
+    },
+    {
+      "case_id": "fn_01_db01229_p10415",
+      "category": "FN",
+      "sample_index": 5077,
+      "drug_id": "DB01229",
+      "drug_name": "paclitaxel",
+      "protein_id": "P10415",
+      "protein_name": "BCL2",
+      "label": 1,
+      "expected_a8_prediction": 0,
+      "expected_a8_probability": 0.000061336,
+      "expected_a1_prediction": 1,
+      "expected_a1_probability": 0.789312030,
+      "known_residues": [],
+      "evidence": [
+        {
+          "source_type": "database",
+          "source_name": "DrugBank DB01229",
+          "url": "https://go.drugbank.com/drugs/DB01229",
+          "evidence_level": "identity",
+          "note": "Drug identity reference for paclitaxel."
+        },
+        {
+          "source_type": "database",
+          "source_name": "UniProt P10415",
+          "url": "https://www.uniprot.org/uniprotkb/P10415/entry",
+          "evidence_level": "identity",
+          "note": "Protein identity reference for human BCL2."
+        },
+        {
+          "source_type": "primary_literature",
+          "source_name": "Paclitaxel directly binds to Bcl-2",
+          "url": "https://aacrjournals.org/cancerres/article/69/17/6906/549913/Paclitaxel-Directly-Binds-to-Bcl-2-and",
+          "evidence_level": "direct_binding_evidence",
+          "note": "Primary experimental report of direct paclitaxel-Bcl-2 binding."
+        }
+      ]
+    }
+  ]
+}

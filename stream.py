@@ -3,24 +3,26 @@ import pandas as pd
 import torch
 from torch.utils import data
 import json
+from pathlib import Path
 
 from sklearn.preprocessing import OneHotEncoder
 
 from subword_nmt.apply_bpe import BPE
 import codecs
 
-vocab_path = './ESPF/protein_codes_uniprot.txt'
-bpe_codes_protein = codecs.open(vocab_path)
-pbpe = BPE(bpe_codes_protein, merges=-1, separator='')
-sub_csv = pd.read_csv('./ESPF/subword_units_map_uniprot.csv')
+base_path = Path(__file__).resolve().parent
+vocab_path = base_path / 'ESPF' / 'protein_codes_uniprot.txt'
+with codecs.open(str(vocab_path)) as bpe_codes_protein:
+    pbpe = BPE(bpe_codes_protein, merges=-1, separator='')
+sub_csv = pd.read_csv(base_path / 'ESPF' / 'subword_units_map_uniprot.csv')
 
 idx2word_p = sub_csv['index'].values
 words2idx_p = dict(zip(idx2word_p, range(0, len(idx2word_p))))
 
-vocab_path = './ESPF/drug_codes_chembl.txt'
-bpe_codes_drug = codecs.open(vocab_path)
-dbpe = BPE(bpe_codes_drug, merges=-1, separator='')
-sub_csv = pd.read_csv('./ESPF/subword_units_map_chembl.csv')
+vocab_path = base_path / 'ESPF' / 'drug_codes_chembl.txt'
+with codecs.open(str(vocab_path)) as bpe_codes_drug:
+    dbpe = BPE(bpe_codes_drug, merges=-1, separator='')
+sub_csv = pd.read_csv(base_path / 'ESPF' / 'subword_units_map_chembl.csv')
 
 idx2word_d = sub_csv['index'].values
 words2idx_d = dict(zip(idx2word_d, range(0, len(idx2word_d))))
