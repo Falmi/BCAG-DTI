@@ -1,4 +1,4 @@
-def BIN_config_DBPE(dataset='default'):
+def BIN_config_DBPE():
     config = {}
     config['batch_size'] = 16
     config['input_dim_drug'] = 23532
@@ -7,14 +7,7 @@ def BIN_config_DBPE(dataset='default'):
     config['max_drug_seq'] = 50
     config['max_protein_seq'] = 545
     config['emb_size'] = 384
-    
-    # Dataset-specific dropout rates
-    if dataset.lower() == 'davis':
-        config['dropout_rate'] = 0.1  # DAVIS: lower dropout to preserve learned features
-    elif dataset.lower() == 'biosnap':
-        config['dropout_rate'] = 0.15
-    else:
-        config['dropout_rate'] = 0.15
+    config['dropout_rate'] = 0.1
     
     #DenseNet
     config['scale_down_ratio'] = 0.25
@@ -29,12 +22,4 @@ def BIN_config_DBPE(dataset='default'):
     config['attention_probs_dropout_prob'] = 0.1
     config['hidden_dropout_prob'] = 0.1
     config['flat_dim'] = 78192
-    
-    # Advanced features
-    config['use_cross_attention'] = True
-    config['use_multi_scale_pooling'] = True
-    # Disable attention pooling for DAVIS to reduce complexity
-    config['use_attention_pooling'] = False if dataset.lower() == 'davis' else True
-    config['use_moe'] = False  # Mixture of Experts (experimental)
-    
     return config
